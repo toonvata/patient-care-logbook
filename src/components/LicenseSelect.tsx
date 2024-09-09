@@ -25,8 +25,8 @@ const LicenseSelect: React.FC<LicenseSelectProps> = ({ licenseType, licenseNumbe
       className="w-full p-2 border rounded"
     >
       <option value="">เลือกเลขที่ใบอนุญาต</option>
-      <option value="57747">57747 (เวชกรรมแผนปัจจุบัน)</option>
-      <option value="พทป.2381">พทป.2381 (แพทย์แผนไทยประยุกต์)</option>
+      <option value="57747">57747</option>
+      <option value="พทป.2381">พทป.2381</option>
     </select>
   </div>
 );
