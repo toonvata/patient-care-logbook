@@ -11,6 +11,8 @@ import DateInputs from './DateInputs';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import DrugSearch from './DrugSearch';
+import ReceiptForm from './ReceiptForm';
+import { Button } from "@/components/ui/button";
 
 interface TreatmentFormProps {
   patients: Patient[];
@@ -63,6 +65,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     treatmentOptions: {},
     drugs: [],
   });
+  const [showReceiptForm, setShowReceiptForm] = useState(false);
 
   const handlePatientSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const patient = patients.find(p => p.hn === e.target.value) || null;
@@ -117,25 +120,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
         };
         await addDoc(collection(db, 'treatments'), treatmentToSave);
         onTreatmentAdded();
-        setTreatment({
-          patientHN: selectedPatient.hn,
-          date: '',
-          vitalSigns: { bloodPressure: '', pulse: 0, temperature: 0, respiratoryRate: 0 },
-          symptoms: '',
-          diagnosis: '',
-          treatment: '',
-          medication: '',
-          nextAppointment: '',
-          bodyChart: '',
-          doctor: '',
-          licenseType: '',
-          licenseNumber: '',
-          startDate: '',
-          endDate: '',
-          dayCount: 0,
-          treatmentOptions: {},
-          drugs: [],
-        });
+        setShowReceiptForm(true);
       } catch (error) {
         console.error("Error adding treatment: ", error);
       }
@@ -222,13 +207,19 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           />
           <DateInputs treatment={treatment} handleChange={handleChange} />
           <BodyChart onChange={handleBodyChartChange} initialData={treatment.bodyChart} />
-          <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <Button type="submit" className="w-full">
             บันทึกการรักษา
-          </button>
-          <button type="button" onClick={() => generateMedicalCertificatePDF(selectedPatient, treatment)} className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600">
+          </Button>
+          <Button type="button" onClick={() => generateMedicalCertificatePDF(selectedPatient, treatment)} className="w-full">
             สร้าง PDF ใบรับรองแพทย์
-          </button>
+          </Button>
         </>
+      )}
+      {showReceiptForm && (
+        <ReceiptForm
+          drugs={treatment.drugs}
+          onClose={() => setShowReceiptForm(false)}
+        />
       )}
     </form>
   );
