@@ -3,7 +3,7 @@ import { Patient, Treatment } from '../types';
 import BodyChart from './BodyChart';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
-import { jsPDF } from 'jspdf';
+import { generateMedicalCertificatePDF } from '../utils/pdfGenerator';
 
 interface TreatmentFormProps {
   patients: Patient[];
@@ -27,7 +27,13 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     treatment: '',
     medication: '',
     nextAppointment: '',
-    bodyChart: ''
+    bodyChart: '',
+    doctor: '',
+    licenseType: '',
+    licenseNumber: '',
+    startDate: '',
+    endDate: '',
+    dayCount: 0
   });
 
   const handlePatientSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -36,7 +42,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     setTreatment(prev => ({ ...prev, patientHN: patient ? patient.hn : '' }));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setTreatment(prev => ({
       ...prev,
@@ -66,37 +72,18 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           treatment: '',
           medication: '',
           nextAppointment: '',
-          bodyChart: ''
+          bodyChart: '',
+          doctor: '',
+          licenseType: '',
+          licenseNumber: '',
+          startDate: '',
+          endDate: '',
+          dayCount: 0
         });
       } catch (error) {
         console.error("Error adding treatment: ", error);
       }
     }
-  };
-
-  const generatePDF = () => {
-    if (!selectedPatient) return;
-
-    const doc = new jsPDF();
-
-    doc.setFont("Sarabun");
-    doc.setFontSize(16);
-    doc.text('ใบรับรองแพทย์', 105, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.text(`ชื่อ-นามสกุล: ${selectedPatient.name}`, 20, 40);
-    doc.text(`HN: ${selectedPatient.hn}`, 20, 50);
-    doc.text(`วันที่ตรวจ: ${treatment.date}`, 20, 60);
-    doc.text(`อาการ: ${treatment.symptoms}`, 20, 70);
-    doc.text(`การวินิจฉัย: ${treatment.diagnosis}`, 20, 80);
-    doc.text(`การรักษา: ${treatment.treatment}`, 20, 90);
-    doc.text(`ยาที่ได้รับ: ${treatment.medication}`, 20, 100);
-    doc.text(`นัดครั้งต่อไป: ${treatment.nextAppointment}`, 20, 110);
-
-    if (treatment.bodyChart) {
-      doc.addImage(treatment.bodyChart, 'JPEG', 20, 120, 100, 100);
-    }
-
-    doc.save(`medical_certificate_${selectedPatient.hn}_${treatment.date}.pdf`);
   };
 
   return (
@@ -194,12 +181,64 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
             placeholder="วันนัดครั้งต่อไป"
             className="w-full p-2 border rounded"
           />
+          <select
+            name="doctor"
+            value={treatment.doctor}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">เลือกแพทย์</option>
+            <option value="นายแพทย์นิรัตน์พงษ์ เชาวนิช">นายแพทย์นิรัตน์พงษ์ เชาวนิช</option>
+            <option value="นายวาตา โสดา">นายวาตา โสดา</option>
+          </select>
+          <select
+            name="licenseType"
+            value={treatment.licenseType}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">เลือกประเภทใบอนุญาต</option>
+            <option value="เวชกรรมแผนปัจจุบัน">เวชกรรมแผนปัจจุบัน</option>
+            <option value="แพทย์แผนไทยประยุกต์">แพทย์แผนไทยประยุกต์</option>
+          </select>
+          <input
+            type="text"
+            name="licenseNumber"
+            value={treatment.licenseNumber}
+            onChange={handleChange}
+            placeholder="เลขที่ใบอนุญาต"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="date"
+            name="startDate"
+            value={treatment.startDate}
+            onChange={handleChange}
+            placeholder="วันที่เริ่มลา"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="date"
+            name="endDate"
+            value={treatment.endDate}
+            onChange={handleChange}
+            placeholder="วันที่สิ้นสุดการลา"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="number"
+            name="dayCount"
+            value={treatment.dayCount}
+            onChange={handleChange}
+            placeholder="จำนวนวันลา"
+            className="w-full p-2 border rounded"
+          />
           <BodyChart onChange={handleBodyChartChange} initialData={treatment.bodyChart} />
           <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             บันทึกการรักษา
           </button>
-          <button type="button" onClick={generatePDF} className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600">
-            สร้าง PDF
+          <button type="button" onClick={() => generateMedicalCertificatePDF(selectedPatient, treatment)} className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600">
+            สร้าง PDF ใบรับรองแพทย์
           </button>
         </>
       )}

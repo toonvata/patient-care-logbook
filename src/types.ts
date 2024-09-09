@@ -24,4 +24,10 @@ export interface Treatment {
   medication: string;
   nextAppointment: string;
   bodyChart: string;
+  doctor: string;
+  licenseType: string;
+  licenseNumber: string;
+  startDate: string;
+  endDate: string;
+  dayCount: number;
 }
