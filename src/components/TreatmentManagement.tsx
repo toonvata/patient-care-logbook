@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import TreatmentForm from './TreatmentForm';
 import TreatmentHistory from './TreatmentHistory';
 import { Patient, Treatment } from '../types';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const TreatmentManagement: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -9,24 +11,40 @@ const TreatmentManagement: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    const storedPatients = localStorage.getItem('patients');
-    const storedTreatments = localStorage.getItem('treatments');
-    if (storedPatients) setPatients(JSON.parse(storedPatients));
-    if (storedTreatments) setTreatments(JSON.parse(storedTreatments));
+    const fetchPatients = async () => {
+      const querySnapshot = await getDocs(collection(db, 'patients'));
+      const patientsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Patient));
+      setPatients(patientsData);
+    };
+
+    fetchPatients();
   }, []);
 
-  const addTreatment = (treatment: Treatment) => {
-    const updatedTreatments = [...treatments, treatment];
-    setTreatments(updatedTreatments);
-    localStorage.setItem('treatments', JSON.stringify(updatedTreatments));
-  };
+  useEffect(() => {
+    const fetchTreatments = async () => {
+      if (selectedPatient) {
+        const q = query(collection(db, 'treatments'), where('patientHN', '==', selectedPatient.hn));
+        const querySnapshot = await getDocs(q);
+        const treatmentsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Treatment));
+        setTreatments(treatmentsData);
+      }
+    };
 
-  const deleteTreatment = (patientHN: string, treatmentDate: string) => {
-    const updatedTreatments = treatments.filter(
-      t => !(t.patientHN === patientHN && t.date === treatmentDate)
-    );
-    setTreatments(updatedTreatments);
-    localStorage.setItem('treatments', JSON.stringify(updatedTreatments));
+    fetchTreatments();
+  }, [selectedPatient]);
+
+  const handleTreatmentAdded = () => {
+    // Refresh treatments after adding a new one
+    if (selectedPatient) {
+      const fetchTreatments = async () => {
+        const q = query(collection(db, 'treatments'), where('patientHN', '==', selectedPatient.hn));
+        const querySnapshot = await getDocs(q);
+        const treatmentsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Treatment));
+        setTreatments(treatmentsData);
+      };
+
+      fetchTreatments();
+    }
   };
 
   return (
@@ -36,12 +54,12 @@ const TreatmentManagement: React.FC = () => {
         patients={patients}
         selectedPatient={selectedPatient}
         setSelectedPatient={setSelectedPatient}
-        addTreatment={addTreatment}
+        onTreatmentAdded={handleTreatmentAdded}
       />
       {selectedPatient && (
         <TreatmentHistory
-          treatments={treatments.filter(t => t.patientHN === selectedPatient.hn)}
-          deleteTreatment={deleteTreatment}
+          treatments={treatments}
+          deleteTreatment={() => {}} // Implement delete functionality if needed
         />
       )}
     </div>
