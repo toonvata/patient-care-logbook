@@ -8,6 +8,8 @@ import DoctorSelect from './DoctorSelect';
 import LicenseSelect from './LicenseSelect';
 import VitalSignsInputs from './VitalSignsInputs';
 import DateInputs from './DateInputs';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface TreatmentFormProps {
   patients: Patient[];
@@ -15,6 +17,17 @@ interface TreatmentFormProps {
   setSelectedPatient: (patient: Patient | null) => void;
   onTreatmentAdded: () => void;
 }
+
+const treatmentOptions = [
+  { id: 'massage', label: 'นวด' },
+  { id: 'cutAdhesions', label: 'ตัดพังผืด' },
+  { id: 'neckAdjustment', label: 'จัดกระดูกคอ' },
+  { id: 'neckTraction', label: 'ดึงคอ' },
+  { id: 'backAdjustment', label: 'จัดกระดูกหลัง' },
+  { id: 'backTraction', label: 'ดึงหลัง' },
+  { id: 'shoulderAdjustment', label: 'ปรับไหล่' },
+  { id: 'armAdjustment', label: 'ปรับมือ ศอก แขน' },
+];
 
 const TreatmentForm: React.FC<TreatmentFormProps> = ({
   patients,
@@ -37,7 +50,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     licenseNumber: '',
     startDate: '',
     endDate: '',
-    dayCount: 0
+    dayCount: 0,
+    treatmentOptions: {}
   });
 
   const handlePatientSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -57,6 +71,16 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     }));
   };
 
+  const handleCheckboxChange = (optionId: string, checked: boolean) => {
+    setTreatment(prev => ({
+      ...prev,
+      treatmentOptions: {
+        ...prev.treatmentOptions,
+        [optionId]: checked
+      }
+    }));
+  };
+
   const handleBodyChartChange = (dataUrl: string) => {
     setTreatment(prev => ({ ...prev, bodyChart: dataUrl }));
   };
@@ -65,7 +89,14 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     e.preventDefault();
     if (selectedPatient) {
       try {
-        await addDoc(collection(db, 'treatments'), treatment);
+        const treatmentToSave = {
+          ...treatment,
+          treatment: Object.entries(treatment.treatmentOptions)
+            .filter(([_, value]) => value)
+            .map(([key, _]) => treatmentOptions.find(option => option.id === key)?.label)
+            .join(', ')
+        };
+        await addDoc(collection(db, 'treatments'), treatmentToSave);
         onTreatmentAdded();
         setTreatment({
           patientHN: selectedPatient.hn,
@@ -82,7 +113,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           licenseNumber: '',
           startDate: '',
           endDate: '',
-          dayCount: 0
+          dayCount: 0,
+          treatmentOptions: {}
         });
       } catch (error) {
         console.error("Error adding treatment: ", error);
@@ -129,13 +161,19 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
             placeholder="การวินิจฉัย"
             className="w-full p-2 border rounded"
           />
-          <textarea
-            name="treatment"
-            value={treatment.treatment}
-            onChange={handleChange}
-            placeholder="การรักษา"
-            className="w-full p-2 border rounded"
-          />
+          <div className="space-y-2">
+            <Label>การรักษา</Label>
+            {treatmentOptions.map((option) => (
+              <div key={option.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={option.id}
+                  checked={treatment.treatmentOptions[option.id] || false}
+                  onCheckedChange={(checked) => handleCheckboxChange(option.id, checked as boolean)}
+                />
+                <Label htmlFor={option.id}>{option.label}</Label>
+              </div>
+            ))}
+          </div>
           <textarea
             name="medication"
             value={treatment.medication}
