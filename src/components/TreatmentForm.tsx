@@ -10,6 +10,7 @@ import VitalSignsInputs from './VitalSignsInputs';
 import DateInputs from './DateInputs';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import DrugSearch from './DrugSearch';
 
 interface TreatmentFormProps {
   patients: Patient[];
@@ -29,13 +30,21 @@ const treatmentOptions = [
   { id: 'armAdjustment', label: 'ปรับมือ ศอก แขน' },
 ];
 
+interface Drug {
+  id: number;
+  name: string;
+  price: number;
+  unit: string;
+  quantity: number;
+}
+
 const TreatmentForm: React.FC<TreatmentFormProps> = ({
   patients,
   selectedPatient,
   setSelectedPatient,
   onTreatmentAdded
 }) => {
-  const [treatment, setTreatment] = useState<Treatment>({
+  const [treatment, setTreatment] = useState<Treatment & { drugs: Drug[] }>({
     patientHN: '',
     date: '',
     vitalSigns: { bloodPressure: '', pulse: 0, temperature: 0, respiratoryRate: 0 },
@@ -51,7 +60,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     startDate: '',
     endDate: '',
     dayCount: 0,
-    treatmentOptions: {}
+    treatmentOptions: {},
+    drugs: [],
   });
 
   const handlePatientSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -85,6 +95,13 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     setTreatment(prev => ({ ...prev, bodyChart: dataUrl }));
   };
 
+  const handleDrugSelect = (drug: Drug, quantity: number) => {
+    setTreatment(prev => ({
+      ...prev,
+      drugs: [...prev.drugs, { ...drug, quantity }]
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedPatient) {
@@ -94,7 +111,9 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           treatment: Object.entries(treatment.treatmentOptions)
             .filter(([_, value]) => value)
             .map(([key, _]) => treatmentOptions.find(option => option.id === key)?.label)
-            .join(', ')
+            .join(', '),
+          medication: treatment.drugs.map(drug => `${drug.name} x ${drug.quantity}`).join(', '),
+          totalCost: treatment.drugs.reduce((total, drug) => total + drug.price * drug.quantity, 0)
         };
         await addDoc(collection(db, 'treatments'), treatmentToSave);
         onTreatmentAdded();
@@ -114,7 +133,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           startDate: '',
           endDate: '',
           dayCount: 0,
-          treatmentOptions: {}
+          treatmentOptions: {},
+          drugs: [],
         });
       } catch (error) {
         console.error("Error adding treatment: ", error);
@@ -174,13 +194,18 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
               </div>
             ))}
           </div>
-          <textarea
-            name="medication"
-            value={treatment.medication}
-            onChange={handleChange}
-            placeholder="ยาที่ได้รับ"
-            className="w-full p-2 border rounded"
-          />
+          <DrugSearch onDrugSelect={handleDrugSelect} />
+          <div>
+            <h3>รายการยาที่เลือก:</h3>
+            <ul>
+              {treatment.drugs.map((drug, index) => (
+                <li key={index}>
+                  {drug.name} x {drug.quantity} - {drug.price * drug.quantity} บาท
+                </li>
+              ))}
+            </ul>
+            <p>ราคารวม: {treatment.drugs.reduce((total, drug) => total + drug.price * drug.quantity, 0)} บาท</p>
+          </div>
           <input
             type="date"
             name="nextAppointment"
