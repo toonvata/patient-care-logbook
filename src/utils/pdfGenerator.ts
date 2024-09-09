@@ -1,6 +1,8 @@
 import { jsPDF } from 'jspdf';
 import { Patient, Treatment } from '../types';
 
+let certificateNumber = 1;
+
 export const generateMedicalCertificatePDF = (patient: Patient, treatment: Treatment) => {
   const doc = new jsPDF();
 
@@ -16,13 +18,14 @@ export const generateMedicalCertificatePDF = (patient: Patient, treatment: Treat
   doc.text('ใบรับรองแพทย์ / Medical Certificate', 105, 45, { align: 'center' });
 
   doc.setFontSize(12);
-  doc.text(`เลขที่ ${Math.floor(Math.random() * 1000000)}`, 20, 60);
+  doc.text(`เลขที่ ${certificateNumber.toString().padStart(6, '0')}`, 20, 60);
+  certificateNumber++;
 
   doc.text(`ข้าพเจ้า ${treatment.doctor}`, 20, 70);
   doc.text(`เป็นผู้ประกอบวิชาชีพ ${treatment.licenseType}`, 20, 80);
   doc.text(`ใบอนุญาตประกอบวิชาชีพเลขที่ ${treatment.licenseNumber}`, 20, 90);
 
-  doc.text(`ได้ตรวจร่างกายผู้ป่วยชื่อ ${patient.name}`, 20, 100);
+  doc.text(`ได้ตรวจร่างกายผู้ป่วยชื่อ ${patient.name} (HN: ${patient.hn})`, 20, 100);
 
   doc.text(`เมื่อวันที่ ${treatment.date}`, 20, 110);
   doc.text(`เห็นว่า ${treatment.diagnosis}`, 20, 120);

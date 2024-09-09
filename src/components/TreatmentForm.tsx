@@ -6,6 +6,8 @@ import { db } from '../firebase';
 import { generateMedicalCertificatePDF } from '../utils/pdfGenerator';
 import DoctorSelect from './DoctorSelect';
 import LicenseSelect from './LicenseSelect';
+import VitalSignsInputs from './VitalSignsInputs';
+import DateInputs from './DateInputs';
 
 interface TreatmentFormProps {
   patients: Patient[];
@@ -155,30 +157,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
             licenseNumber={treatment.licenseNumber}
             onChange={handleChange}
           />
-          <input
-            type="date"
-            name="startDate"
-            value={treatment.startDate}
-            onChange={handleChange}
-            placeholder="วันที่เริ่มลา"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="date"
-            name="endDate"
-            value={treatment.endDate}
-            onChange={handleChange}
-            placeholder="วันที่สิ้นสุดการลา"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="number"
-            name="dayCount"
-            value={treatment.dayCount}
-            onChange={handleChange}
-            placeholder="จำนวนวันลา"
-            className="w-full p-2 border rounded"
-          />
+          <DateInputs treatment={treatment} handleChange={handleChange} />
           <BodyChart onChange={handleBodyChartChange} initialData={treatment.bodyChart} />
           <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             บันทึกการรักษา
@@ -191,43 +170,5 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     </form>
   );
 };
-
-const VitalSignsInputs: React.FC<{ treatment: Treatment; handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({ treatment, handleChange }) => (
-  <fieldset className="border p-4 rounded">
-    <legend className="text-lg font-semibold">Vital Signs</legend>
-    <input
-      type="text"
-      name="vitalSigns.bloodPressure"
-      value={treatment.vitalSigns.bloodPressure}
-      onChange={handleChange}
-      placeholder="ความดันโลหิต"
-      className="w-full p-2 border rounded mb-2"
-    />
-    <input
-      type="number"
-      name="vitalSigns.pulse"
-      value={treatment.vitalSigns.pulse}
-      onChange={handleChange}
-      placeholder="ชีพจร"
-      className="w-full p-2 border rounded mb-2"
-    />
-    <input
-      type="number"
-      name="vitalSigns.temperature"
-      value={treatment.vitalSigns.temperature}
-      onChange={handleChange}
-      placeholder="อุณหภูมิ"
-      className="w-full p-2 border rounded mb-2"
-    />
-    <input
-      type="number"
-      name="vitalSigns.respiratoryRate"
-      value={treatment.vitalSigns.respiratoryRate}
-      onChange={handleChange}
-      placeholder="อัตราการหายใจ"
-      className="w-full p-2 border rounded"
-    />
-  </fieldset>
-);
 
 export default TreatmentForm;

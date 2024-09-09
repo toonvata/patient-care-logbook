@@ -18,15 +18,16 @@ const LicenseSelect: React.FC<LicenseSelectProps> = ({ licenseType, licenseNumbe
       <option value="เวชกรรมแผนปัจจุบัน">เวชกรรมแผนปัจจุบัน</option>
       <option value="แพทย์แผนไทยประยุกต์">แพทย์แผนไทยประยุกต์</option>
     </select>
-    <input
-      type="text"
+    <select
       name="licenseNumber"
       value={licenseNumber}
       onChange={onChange}
-      placeholder="เลขที่ใบอนุญาต"
       className="w-full p-2 border rounded"
-      readOnly
-    />
+    >
+      <option value="">เลือกเลขที่ใบอนุญาต</option>
+      <option value="57747">57747 (เวชกรรมแผนปัจจุบัน)</option>
+      <option value="พทป.2381">พทป.2381 (แพทย์แผนไทยประยุกต์)</option>
+    </select>
   </div>
 );
 
