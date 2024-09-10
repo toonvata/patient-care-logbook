@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold mb-8 text-center">ระบบบันทึกประวัติผู้ป่วยและการรักษา</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">ยินดีต้อนรับสู่ระบบบันทึกประวัติผู้ป่วยและการรักษา</h1>
+      <p className="text-xl mb-8 text-center">กรุณาเลือกการดำเนินการที่ต้องการ</p>
       <div className="space-y-4">
         <Link to="/patients">
           <Button className="w-64">จัดการข้อมูลผู้ป่วย</Button>
