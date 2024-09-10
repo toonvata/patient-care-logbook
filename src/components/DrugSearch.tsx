@@ -25,6 +25,11 @@ const drugList: Drug[] = [
   { id: 13, name: "Sertraline 50mg. 30's", price: 150, unit: "ขวด" },
   { id: 14, name: "Escitalopram 10mg. 30's", price: 180, unit: "ขวด" },
   { id: 15, name: "Gabapentin 300mg. 30's", price: 100, unit: "ขวด" },
+  { id: 16, name: "ยาหอม 10g", price: 25, unit: "ซอง" },
+  { id: 17, name: "ยาธาตุน้ำขาว 200ml", price: 35, unit: "ขวด" },
+  { id: 18, name: "ขมิ้นชัน 400mg. 100's", price: 120, unit: "ขวด" },
+  { id: 19, name: "ฟ้าทะลายโจร 400mg. 60's", price: 80, unit: "ขวด" },
+  { id: 20, name: "มะขามแขก 300mg. 100's", price: 90, unit: "ขวด" },
 ];
 
 interface DrugSearchProps {
