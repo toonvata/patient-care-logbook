@@ -69,3 +69,11 @@ Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/f5e
 ## Custom domains
 
 We don't support custom domains yet. If you want to deploy your project under your own domain, we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+
+## Next steps
+
+Now that you have set up your project and updated the Firebase configuration, you can start the development server by running `npm run dev` in your terminal. This will start the application, and you can view it in your web browser at `http://localhost:5173`.
+
+As you continue to develop your application, you can make changes to the code and see the updates in real-time. Remember to test the Firebase connection and ensure that all features are working as expected.
+
+If you encounter any issues or need to make further changes, you can continue to use the GPT Engineer interface or edit the files directly in your preferred development environment.
